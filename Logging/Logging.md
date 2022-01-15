@@ -14,7 +14,7 @@ ___
     * [Log::Logging::pullProperties()](#logloggingpullproperties)
     * [Log::Logging::pushProperties()](#logloggingpushproperties)
     * [Log::Logging::log()](#loglogginglog)
-* [Planned implementations](#plannedimplementations)
+* [Planned implementations](#planned-implementations)
 
 ___
 ## Dependencies
