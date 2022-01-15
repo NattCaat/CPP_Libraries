@@ -3,18 +3,18 @@ A simple logging library using a tree structure to organize the loggers.
 
 ___
 ## Table of contents
-* [Dependencies](#Dependencies)
-* [Compilation](#Compilation)
-* [Usage](#Usage)
-    * [Log::getLogger()](#Log::getLogger())
-    * [Log::Logging::getChild()](#Log::Logging::getChild()) 
-    * [Log::Logging::setFormat()](#Log::Logging::setFormat())
-    * [Log::Logging::setFormatTime()](#Log::Logging::setFormatTime())
-    * [Log::Logging::setLevel()](#Log::Logging::setLevel())
-    * [Log::Logging::pullProperties()](#Log::Logging::pullProperties())
-    * [Log::Logging::pushProperties()](#Log::Logging::pushProperties())
-    * [Log::Logging::log()](#Log::Logging::log())
-* [Planned implementations](#Planned)
+* [Dependencies](#dependencies)
+* [Compilation](#compilation)
+* [Usage](#usage)
+    * [Log::getLogger()](#loggetlogger)
+    * [Log::Logging::getChild()](#loglogginggetchild) 
+    * [Log::Logging::setFormat()](#logloggingsetformat)
+    * [Log::Logging::setFormatTime()](#logloggingsetformattime)
+    * [Log::Logging::setLevel()](#logloggingsetlevel)
+    * [Log::Logging::pullProperties()](#logloggingpullproperties)
+    * [Log::Logging::pushProperties()](#logloggingpushproperties)
+    * [Log::Logging::log()](#loglogginglog)
+* [Planned implementations](#plannedimplementations)
 
 ___
 ## Dependencies
@@ -36,14 +36,14 @@ ___
 ## Usage
 Before you start using it, keep in mind the library is defined inside the namespace `Log` and that it is **strongly discouraged** adding `using namespace Log;` to your source file. I hade my reasons to define it inside the namespace.
 
-* [Log::getLogger()](#Log::getLogger())
-* [Log::Logging::getChild()](#Log::Logging::getChild()) 
-* [Log::Logging::setFormat()](#Log::Logging::setFormat())
-* [Log::Logging::setFormatTime()](#Log::Logging::setFormatTime())
-* [Log::Logging::setLevel()](#Log::Logging::setLevel())
-* [Log::Logging::pullProperties()](#Log::Logging::pullProperties())
-* [Log::Logging::pushProperties()](#Log::Logging::pushProperties())
-* [Log::Logging::log()](#Log::Logging::log())
+* [Log::getLogger()](#loggetlogger)
+* [Log::Logging::getChild()](#loglogginggetchild) 
+* [Log::Logging::setFormat()](#logloggingsetformat)
+* [Log::Logging::setFormatTime()](#logloggingsetformattime)
+* [Log::Logging::setLevel()](#logloggingsetlevel)
+* [Log::Logging::pullProperties()](#logloggingpullproperties)
+* [Log::Logging::pushProperties()](#logloggingpushproperties)
+* [Log::Logging::log()](#loglogginglog)
 
 ___
 ### Log::getLogger()
@@ -227,6 +227,6 @@ logger->warning("Another warning");
 ```
 
 ___
-## Planned
+## Planned Implementations
 - Log functions can take any types
 - Saving logs into a file 
