@@ -7,13 +7,14 @@ ___
 * [Compilation](#compilation)
 * [Usage](#usage)
     * [Log::getLogger()](#loggetlogger)
+    * [Log::Logging::log()](#loglogginglog)
     * [Log::Logging::getChild()](#loglogginggetchild) 
     * [Log::Logging::setFormat()](#logloggingsetformat)
     * [Log::Logging::setFormatTime()](#logloggingsetformattime)
     * [Log::Logging::setLevel()](#logloggingsetlevel)
     * [Log::Logging::pullProperties()](#logloggingpullproperties)
     * [Log::Logging::pushProperties()](#logloggingpushproperties)
-    * [Log::Logging::log()](#loglogginglog)
+    * [Log::Logging::clean()](#logloggingclean)
 * [Planned implementations](#planned-implementations)
 
 ___
@@ -37,13 +38,14 @@ ___
 Before you start using it, keep in mind the library is defined inside the namespace `Log` and that it is **strongly discouraged** adding `using namespace Log;` to your source file. I hade my reasons to define it inside the namespace.
 
 * [Log::getLogger()](#loggetlogger)
+* [Log::Logging::log()](#loglogginglog)
 * [Log::Logging::getChild()](#loglogginggetchild) 
 * [Log::Logging::setFormat()](#logloggingsetformat)
 * [Log::Logging::setFormatTime()](#logloggingsetformattime)
 * [Log::Logging::setLevel()](#logloggingsetlevel)
 * [Log::Logging::pullProperties()](#logloggingpullproperties)
 * [Log::Logging::pushProperties()](#logloggingpushproperties)
-* [Log::Logging::log()](#loglogginglog)
+* [Log::Logging::clean()](#logloggingclean)
 
 ___
 ### Log::getLogger()
@@ -72,30 +74,59 @@ auto rootPtr1 = Log::getLogger("/");
 // The function returns the root logger by default
 auto rootPtr3 = Log::getLogger();
 ```
-__Note:__ This function returns smart pointers. That means they are destroying themself when they are out of scope. You should not deallocate them by yourself.
+__Note:__ This function returns smart pointers. That means they are destroying themselves when they are out of scope. You should not deallocate them by yourself.
 
 ___
-### Log::Logging::getChild()
-> `std::shared_ptr<Log::Logging> Log::Logging::getLogger(std::string name)`
+### Log::Logging::log()
+> `void Log::Logging::log(int level, std::string msg)`\
+> `void Log::Logging::debug(std::string msg)`\
+> `void Log::Logging::info(std::string msg)`\
+> `void Log::Logging::warning(std::string msg)`\
+> `void Log::Logging::error(std::string msg)`\
+> `void Log::Logging::critical(std::string msg)`
 
 This is a member of the `Logging` class.
 
-It is used in a similar way as [Log::getLogger()](#Log::getLogger). The argument `name` now contains the local path to the wanted logger.
+This function displays the actual log message `msg` with a priority of `level`.
+The argument `level` can contain any number listed [here](#logloggingsetlevel) except of `Log::MAX_LEVEL`.
+`out_of_range` exception is thrown when level is out of range.
+
+The `Logging` class also contains some additional log functions.
+```c++
+auto logger = Log::getLogger();
+logger->log(Log::WARNING, "A warning");
+logger->warning("Another warning");
+```
+
+___
+### Log::Logging::getChild()
+> `std::shared_ptr<Log::Logging> Log::Logging::getLogger(std::string name)`\
+> `std::shared_ptr<Log::Logging> Log::Logging::operator[](std::string name)`
+
+This is a member of the `Logging` class.
+
+It is used in a similar way as [Log::getLogger()](#loggetlogger). The argument `name` now contains the local path to the wanted logger.
+
+The `[]` operator also can be used to get the wanted child logger. Don't forget to derefernce the pointer of the used object.
 ```c++
 auto mainLogger = Log::getLogger("/mainLogger");
-auto childLogger = mainLogger->getChild("childLogger");
+auto childLogger;
+// Both notations are leading the samre result
+childLogger = mainLogger->getChild("childLogger");
+childLogger = (*mainLogger)["childLogger"];
 ```
 As for `Log::getLogger()`, the child is created if it does not exist yet.
 
-The argument name also can contain `.` and `..`, they are interpreted the same way as in the Unix filesystem. When you want to access the parent of the root logger, `out_of_range` is thrown.
+The argument name also can contain `.` and `..`, they are interpreted the same way as in the Unix filesystem. When you want to access the parent of the root logger, `out_of_range` exception is thrown.
 ```c++
 auto mainLogger = Log::getLogger("/mainLogger");
 std::shared_ptr<Log::Logging> childLogger;
 // The following three expressions are leading to the same result
 childLogger = mainLogger->getChild("./childLogger");
 childLogger = mainLogger->getChild("childLogger");
-// Great example of "Just because it is possible doesn't mean you should do it"
+// Great examples of "Just because it is possible doesn't mean you should do it"
 childLogger = mainLogger->getChild("./.././././mainLogger/./././././childLogger");
+childLogger = (*(*(*(*(*mainLogger)["."])[".././."])["./mainLogger"])["././././"])["././childLogger"];
 // Get the parent of mainLogger, the root logger
 auto root = mainLogger->getChild("..");
 // This line throws an out_of_range exception
@@ -123,8 +154,8 @@ The default format is
 | `{name}`  | Full name of current logger     |
 
 __Notes:__ 
-* The time format is changed with help of [Log::Logging::setFormatTime()](#Log::Logging::setFormatTime()).
-* The format is only changed to the specific object. To apply it to the object's children, use [Log::Logging::pushProperties()](#Log::Logging::pushProperties()).
+* The time format is changed with help of [Log::Logging::setFormatTime()](#logloggingsetformattime).
+* The format is only changed to the specific object. To apply it to the object's children, use [Log::Logging::pushProperties()](#logloggingpushproperties).
 
 ___
 ### Log::Logging::setFormatTime()
@@ -203,27 +234,23 @@ logger->log(Log::INFO, "This is an information");
 ```
 
 ___
-### Log::Logging::log()
-> `void Log::Logging::log(int level, std::string msg)`\
-> `void Log::Logging::debug(std::string msg)`\
-> `void Log::Logging::info(std::string msg)`\
-> `void Log::Logging::warning(std::string msg)`\
-> `void Log::Logging::error(std::string msg)`\
-> `void Log::Logging::critical(std::string msg)`
+### Log::Logging::clean()
+> `void Log::Logging::clean()`
 
 This is a member of the `Logging` class.
 
-What was the library supposed to do again? Oh right, logging stuff.
+Destroy child loggers who are no longer used in the program
 
-This function displays the actual log message `msg` with a priority of `level`.
-The argument `level` can contain any number listed [here](#Log::Logging::setLevel()) except of `Log::MAX_LEVEL`.
-`out_of_range` exception is thrown when level is out of range.
-
-The `Logging` class also contains some additional log functions.
 ```c++
-auto logger = Log::getLogger();
-logger->log(Log::WARNING, "A warning");
-logger->warning("Another warning");
+auto root = Log::getLogger();
+// Create "/first", "/first/first" and "/first/first/first"
+auto logger = Log::getLogger("/first/first/first");
+// Create "/first/second"
+// "/first/first/first" and "/first/first" are no longer used and therethore dead weight
+logger = Log::getLogger("/first/second");
+// Tell root logger to clean up their branches
+// "/first/first/first" and "/first/first" are destroyed during the process
+root->clean();
 ```
 
 ___

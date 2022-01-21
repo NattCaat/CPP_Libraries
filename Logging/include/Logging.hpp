@@ -75,6 +75,7 @@ namespace Log
             Logging(std::string fullName);
 
             void createChild(std::string name);
+            void clean();
             void pullProperties();
             void pushProperties();
 
@@ -85,8 +86,6 @@ namespace Log
             void setParent(Logging *parent);
 
             // Getters
-            std::shared_ptr<Logging> getPointer()
-            { return shared_from_this(); };
             std::string getName()
             { return _name; };
             std::string getFullName()
@@ -97,7 +96,11 @@ namespace Log
             { return _format; };
             std::string getFormatTime()
             { return _formatTime; };
+            int getChildrenCnt()
+            { return _children.size(); };
             std::shared_ptr<Logging> getChild(std::string name);
+            std::shared_ptr<Logging> operator[](std::string name)
+            { return getChild(name); };
 
             // Methods to actually log messages
             void log(int level, std::string msg);
