@@ -52,6 +52,27 @@ void Log::Logging::createChild(std::string name)
     Log::Logging::_children[name] = tmpLog;
 }
 
+// Remove child loggers who are not referred to recursively
+void Log::Logging::clean()
+{
+    vector<string> deadChildrenKeys;
+    // Check if any children should be removed
+    // Flagging is done by adding their key to "deadChildrenKeys"
+    auto it = Log::Logging::_children.begin();
+    while (it != Log::Logging::_children.end()) {
+        it->second->clean();
+        // Flag child if only parent is pointing to child and child does not have children
+        if (it->second.use_count() < 2 && it->second->getChildrenCnt() == 0) {
+            deadChildrenKeys.push_back(it->first);
+        }
+        it++;
+    }
+    // Remove flagged children
+    for (auto key : deadChildrenKeys) {
+        Log::Logging::_children.erase(key);
+    }
+}
+
 // Get properties from parent logger
 void Log::Logging::pullProperties()
 {
